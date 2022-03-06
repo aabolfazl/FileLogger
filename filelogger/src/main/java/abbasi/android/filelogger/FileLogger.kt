@@ -17,7 +17,7 @@ object FileLogger {
     private var initialized = false
     private var isEnable: Boolean = true
 
-    private lateinit var config: Config
+    private var config: Config? = null
     private var fileWriter: FileWriter? = null
     private var logQueue: ThreadQueue = ThreadQueue()
 
@@ -31,41 +31,53 @@ object FileLogger {
         initialized = true
     }
 
-    fun i(tag: String? = config.defaultTag, msg: String) = checkBlock {
-        if (config.logcatEnable) {
+    fun i(tag: String? = config?.defaultTag, msg: String) = checkBlock {
+        if (config?.logcatEnable == true) {
             Log.i(tag, msg)
         }
 
         postLog(LogLevel.Info, tag, msg)
     }
 
-    fun e(tag: String? = config.defaultTag, msg: String, throwable: Throwable? = null) =
-        checkBlock {
-            if (config.logcatEnable) {
-                Log.e(tag, msg, throwable)
-            }
-
-            postLog(logLevel = LogLevel.Error, tag = tag, msg = msg, throwable = throwable)
+    fun e(
+        tag: String? = config?.defaultTag,
+        msg: String,
+        throwable: Throwable? = null
+    ) = checkBlock {
+        if (config?.logcatEnable == true) {
+            Log.e(tag, msg, throwable)
         }
 
-    fun e(tag: String? = config.defaultTag, throwable: Throwable) = checkBlock {
-        if (config.logcatEnable) {
+        postLog(logLevel = LogLevel.Error, tag = tag, msg = msg, throwable = throwable)
+    }
+
+    fun e(
+        tag: String? = config?.defaultTag,
+        throwable: Throwable
+    ) = checkBlock {
+        if (config?.logcatEnable == true) {
             Log.e(tag, "", throwable)
         }
 
         postLog(logLevel = LogLevel.Error, tag = tag, throwable = throwable)
     }
 
-    fun w(tag: String? = config.defaultTag, msg: String) = checkBlock {
-        if (config.logcatEnable) {
+    fun w(
+        tag: String? = config?.defaultTag,
+        msg: String
+    ) = checkBlock {
+        if (config?.logcatEnable == true) {
             Log.w(tag, msg)
         }
 
         postLog(logLevel = LogLevel.Warning, tag = tag, msg = msg)
     }
 
-    fun d(tag: String? = config.defaultTag, msg: String) = checkBlock {
-        if (config.logcatEnable) {
+    fun d(
+        tag: String? = config?.defaultTag,
+        msg: String
+    ) = checkBlock {
+        if (config?.logcatEnable == true) {
             Log.d(tag, msg)
         }
 
@@ -74,7 +86,7 @@ object FileLogger {
 
     private fun postLog(
         logLevel: LogLevel,
-        tag: String? = config.defaultTag,
+        tag: String? = config?.defaultTag,
         msg: String? = "",
         throwable: Throwable? = null
     ) = fileWriter?.let { writer ->
@@ -95,6 +107,11 @@ object FileLogger {
         this.isEnable = isEnable
     }
 
+    fun deleteFiles() = checkBlock {
+        i(msg = "FileLogger delete files called")
+        fileWriter?.deleteLogsDir()
+    }
+
     private fun checkBlock(block: () -> Unit) {
         if (initialized && isEnable) {
             block()
@@ -103,8 +120,6 @@ object FileLogger {
                 javaClass.simpleName,
                 "SDK not initialized maybe forgot call FileLogger.init(config: Config)"
             )
-        } else {
-            Log.e(javaClass.simpleName, "SDK not enable!")
         }
     }
 }

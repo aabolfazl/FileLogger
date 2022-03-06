@@ -6,6 +6,10 @@
 
 package abbasi.android.filelogger.config
 
+import abbasi.android.filelogger.config.Constance.Companion.DEFAULT_PATTERN
+import abbasi.android.filelogger.config.Constance.Companion.DEFAULT_TAG
+import abbasi.android.filelogger.config.Constance.Companion.LOGCAT_ENABLE
+
 class Config private constructor(
     val directory: String,
     val defaultTag: String,
@@ -14,9 +18,9 @@ class Config private constructor(
 ) {
 
     class Builder(private val directory: String) {
-        private var defaultTag: String = "FileLogger"
-        private var logcatEnable: Boolean = true
-        private var dataFormatterPattern: String = "dd-MM-yyyy-HH:mm:ss"
+        private var defaultTag: String = DEFAULT_TAG
+        private var logcatEnable: Boolean = LOGCAT_ENABLE
+        private var dataFormatterPattern: String = DEFAULT_PATTERN
 
         fun setDefaultTag(defaultTag: String) = apply { this.defaultTag = defaultTag }
         fun setLogcatEnable(logcatEnable: Boolean) = apply { this.logcatEnable = logcatEnable }
@@ -26,7 +30,7 @@ class Config private constructor(
                 .trim()
 
             if (pattern.isEmpty().or(pattern.contains("/"))) {
-                this.dataFormatterPattern = "dd-MM-yyyy-HH:mm:ss"
+                this.dataFormatterPattern = DEFAULT_PATTERN
             }
         }
 

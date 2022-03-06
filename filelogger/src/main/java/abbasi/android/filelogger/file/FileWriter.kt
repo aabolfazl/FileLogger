@@ -6,6 +6,7 @@
 
 package abbasi.android.filelogger.file
 
+import abbasi.android.filelogger.config.Constance.Companion.DIRECTORY
 import abbasi.android.filelogger.time.FastDateFormat
 import android.util.Log
 import java.io.File
@@ -14,7 +15,7 @@ import java.io.OutputStreamWriter
 import java.util.*
 
 internal class FileWriter(
-    directory: String, dataFormatterPattern: String
+    private val directory: String, dataFormatterPattern: String
 ) {
     private var streamWriter: OutputStreamWriter? = null
     private var dateFormat: FastDateFormat? = null
@@ -24,13 +25,12 @@ internal class FileWriter(
         dateFormat = FastDateFormat.getInstance(dataFormatterPattern, Locale.US)
         try {
             val file = File(directory)
-            val logDir = File(file.absolutePath + "/fileLogs")
+            val logDir = File(file.absolutePath + DIRECTORY)
             if (logDir.exists().not()) {
                 logDir.mkdirs()
             }
 
-            logFile =
-                File(logDir, dateFormat?.format(System.currentTimeMillis()).toString() + ".txt")
+            logFile = File(logDir, "${dateFormat?.format(System.currentTimeMillis())}.txt")
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -58,7 +58,14 @@ internal class FileWriter(
         }
     }
 
-    fun deleteCurrentFile() {
+    fun deleteLogsDir() {
+        val currentFile = File(directory)
+        val logDir = File(currentFile.absolutePath + DIRECTORY)
 
+        logDir.listFiles()?.filter {
+            it.absolutePath != logFile?.absolutePath
+        }?.forEach {
+            it.delete()
+        }
     }
 }
