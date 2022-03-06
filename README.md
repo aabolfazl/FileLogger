@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/aabolfazl/FileLogger.svg)](https://jitpack.io/#aabolfazl/FileLogger)
+
 # FileLogger
 
 The FileLogger is a library for save loges on File with custom formatter on background IO threads, mobile-ready, android
