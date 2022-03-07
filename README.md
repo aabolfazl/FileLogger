@@ -2,8 +2,7 @@
 
 # FileLogger
 
-The FileLogger is a library for save loges on File with custom formatter on background IO threads, mobile-ready, android
-compatible, powered by Java Time library for Android. 
+The FileLogger is a library for saving logs on Files with custom-formatter on background I/O threads, mobile-ready, android compatible, powered by Java Time library for Android.
 
 ## Features
 
