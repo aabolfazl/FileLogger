@@ -2,12 +2,18 @@ package abbasi.android.filelogger.sample
 
 import abbasi.android.filelogger.FileLogger
 import abbasi.android.filelogger.config.Config
+import abbasi.android.filelogger.util.FileIntent
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
+    private var zipFile: File? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -43,5 +49,30 @@ class MainActivity : AppCompatActivity() {
             FileLogger.deleteFiles()
         }
 
+        findViewById<Button>(R.id.zipLogs).setOnClickListener {
+            FileLogger.compressLogsInZipFile {
+                zipFile = it
+                Toast.makeText(
+                    this,
+                    "Zip Log file created ${if (zipFile?.exists() == true) "successfully" else "with error"}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+
+        findViewById<Button>(R.id.emailLogs).setOnClickListener {
+            if (zipFile != null) {
+                FileIntent.fromFile(this, zipFile!!, BuildConfig.APPLICATION_ID)?.let { intent ->
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Email Subject")
+                    try {
+                        startActivity(Intent.createChooser(intent, "Email App..."))
+                    } catch (e: java.lang.Exception) {
+                        FileLogger.e(throwable = e)
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Make zip file first.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

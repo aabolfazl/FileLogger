@@ -10,16 +10,19 @@ The FileLogger is a library for saving logs on Files with custom-formatter on ba
 - Working on I/O thread
 - Using java FastDateTime
 - Support INFO, ERROR, DEBUG, WARNING logging level
+- Compress and send logs(Email and messengers)
 
 ## TODO
 1. Add C++ NDK support
-2. Mail logs
+2. Mail logs ✅
 3. Upload on http server
 4. Encrypt important logs
+5. Retrofit/OkHttp Interceptor
+6. Startup log
 
 ## Usage
 
-Init:
+**Init:**
 ```kotlin
 val config = Config.Builder(it.path)
     .setDefaultTag("TAG")
@@ -29,7 +32,7 @@ val config = Config.Builder(it.path)
 
 FileLogger.init(config)
 ```
-Log:
+**Log:**
 ```kotlin
 FileLogger.i("TAG", "This is normal Log with custom TAG")
 FileLogger.i(msg = "This is normal Info Log")
@@ -38,7 +41,7 @@ FileLogger.w(msg = "This is normal Warning Log")
 FileLogger.e(msg = "This is normal Error Log")
 ```
 
-Exception:
+**Exception:**
 ```kotlin
 try {
     //...
@@ -47,12 +50,48 @@ try {
 }
 ```
 
-Delete log files:
+**Compress to Zip file and Email logs:**
+```kotlin
+FileLogger.compressLogsInZipFile("my_files") { zipFile ->
+    zipFile?.let {
+        FileIntent.fromFile(this@MainActivity, zipFile, BuildConfig.APPLICATION_ID)?.let { intent ->
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Email Subject")
+            try {
+                startActivity(Intent.createChooser(intent, "Email App..."))
+            } catch (e: java.lang.Exception) {
+                FileLogger.e(throwable = e)
+            }
+        }
+    }
+}
+```
+for share file with email or etc add this provider in the AndroidManifest.xml file:
+```xml
+<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="${applicationId}.provider"
+    android:exported="false"
+    android:grantUriPermissions="true">
+    <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/provider_paths"/>
+</provider>
+```
+And this one in resource/xml/provider_paths:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path name="media" path="."/>
+    <root-path name="external_files" path="/storage/" />
+</paths>
+```
+
+**Delete log files:**
 ```kotlin
 FileLogger.deleteFiles()
 ```
 
-Enable and disable logging:
+**Enable and disable logging:**
 ```kotlin
 FileLogger.setEnable(boolean)
 ```

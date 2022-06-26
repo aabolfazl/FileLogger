@@ -12,7 +12,7 @@ import android.os.Looper
 import android.os.Message
 import java.util.concurrent.CountDownLatch
 
-internal class ThreadQueue : Thread("RunnableQueue") {
+internal class ThreadQueue constructor(name: String) : Thread(name) {
     private var handler: Handler? = null
     private val latch = CountDownLatch(1)
 

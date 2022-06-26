@@ -10,7 +10,9 @@ import abbasi.android.filelogger.config.Config
 import abbasi.android.filelogger.file.FileWriter
 import abbasi.android.filelogger.file.LogLevel
 import abbasi.android.filelogger.threading.ThreadQueue
+import abbasi.android.filelogger.util.FileZipper
 import android.util.Log
+import java.io.File
 
 object FileLogger {
 
@@ -19,7 +21,11 @@ object FileLogger {
 
     private var config: Config? = null
     private var fileWriter: FileWriter? = null
-    private var logQueue: ThreadQueue = ThreadQueue()
+    private val fileZipper: FileZipper by lazy {
+        FileZipper()
+    }
+
+    private var logQueue: ThreadQueue = ThreadQueue("RunnableQueue")
 
     fun init(config: Config) {
         if (initialized) {
@@ -110,6 +116,15 @@ object FileLogger {
     fun deleteFiles() = checkBlock {
         i(msg = "FileLogger delete files called")
         fileWriter?.deleteLogsDir()
+    }
+
+    fun compressLogsInZipFile(
+        zipFileName: String? = null,
+        callback: ((zipFile: File?) -> Unit),
+    ) = checkBlock {
+        config?.let {
+            fileZipper.compressFiles(it, zipFileName, callback)
+        }
     }
 
     private fun checkBlock(block: () -> Unit) {
