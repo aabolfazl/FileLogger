@@ -52,14 +52,20 @@ try {
 
 **Compress to Zip file and Email logs:**
 ```kotlin
-FileLogger.compressLogsInZipFile("my_files") { zipFile ->
-    zipFile?.let {
-        FileIntent.fromFile(this@MainActivity, zipFile, BuildConfig.APPLICATION_ID)?.let { intent ->
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Email Subject")
-            try {
-                startActivity(Intent.createChooser(intent, "Email App..."))
-            } catch (e: java.lang.Exception) {
-                FileLogger.e(throwable = e)
+FileLogger.apply {
+    compressLogsInZipFile { zipFile ->
+        zipFile?.let {
+            FileIntent.fromFile(
+                this@MainActivity,
+                it,
+                BuildConfig.APPLICATION_ID
+            )?.let { intent ->
+                intent.putExtra(Intent.EXTRA_SUBJECT, "File Logs")
+                try {
+                    startActivity(Intent.createChooser(intent, "Select Email App..."))
+                } catch (e: java.lang.Exception) {
+                    e(throwable = e)
+                }
             }
         }
     }
@@ -82,7 +88,6 @@ And this one in resource/xml/provider_paths:
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <external-path name="media" path="."/>
-    <root-path name="external_files" path="/storage/" />
 </paths>
 ```
 
@@ -138,7 +143,7 @@ Add the dependency
 
 ```gradle
 dependencies { 
-    implementation 'com.github.aabolfazl:filelogger:1.0.0'
+    implementation 'com.github.aabolfazl:filelogger:1.0.1'
 }
 ```
 
