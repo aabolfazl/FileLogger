@@ -20,12 +20,20 @@ object FileLogger {
     private var isEnable: Boolean = true
 
     private var config: Config? = null
-    private var fileWriter: FileWriter? = null
+    private val fileWriter: FileWriter? by lazy {
+        return@lazy config?.let {
+            return@let FileWriter(
+                it.directory,
+                it.dataFormatterPattern,
+                it.startupData
+            )
+        }
+    }
     private val fileZipper: FileZipper by lazy {
         FileZipper()
     }
 
-    private var logQueue: ThreadQueue = ThreadQueue("RunnableQueue")
+    private var logQueue: ThreadQueue = ThreadQueue("LogQueue")
 
     fun init(config: Config) {
         if (initialized) {
@@ -33,7 +41,6 @@ object FileLogger {
         }
 
         this.config = config
-        fileWriter = FileWriter(config.directory, config.dataFormatterPattern)
         initialized = true
     }
 

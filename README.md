@@ -11,6 +11,7 @@ The FileLogger is a library for saving logs on Files with custom-formatter on ba
 - Using java FastDateTime
 - Support INFO, ERROR, DEBUG, WARNING logging level
 - Compress and send logs(Email and messengers)
+- Startup logs
 
 ## TODO
 1. Add C++ NDK support
@@ -18,7 +19,7 @@ The FileLogger is a library for saving logs on Files with custom-formatter on ba
 3. Upload on http server
 4. Encrypt important logs
 5. Retrofit/OkHttp Interceptor
-6. Startup log
+6. Startup log ✅
 
 ## Usage
 
@@ -28,7 +29,18 @@ val config = Config.Builder(it.path)
     .setDefaultTag("TAG")
     .setLogcatEnable(true)
     .setDataFormatterPattern("dd-MM-yyyy-HH:mm:ss")
-    .build()
+    .setStartupData(
+        mapOf(
+            "App Version" to "${BuildConfig.VERSION}",
+            "Device Application Id" to BuildConfig.APPLICATION_ID,
+            "Device Version Code" to BuildConfig.VERSION_CODE.toString(),
+            "Device Version Name" to BuildConfig.VERSION_NAME,
+            "Device Build Type" to BuildConfig.BUILD_TYPE,
+            "Device" to Build.DEVICE,
+            "Device SDK" to Build.VERSION.SDK_INT.toString(),
+            "Device Manufacturer" to Build.MANUFACTURER
+        )
+    ).build()
 
 FileLogger.init(config)
 ```

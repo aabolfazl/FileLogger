@@ -4,6 +4,7 @@ import abbasi.android.filelogger.FileLogger
 import abbasi.android.filelogger.config.Config
 import abbasi.android.filelogger.util.FileIntent
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -23,7 +24,18 @@ class MainActivity : AppCompatActivity() {
                 val config = Config.Builder(it.path)
                     .setDefaultTag("TAG")
                     .setLogcatEnable(true)
-                    .build()
+                    .setStartupData(
+                        mapOf(
+                            "App Version" to "${System.currentTimeMillis()}",
+                            "Device Application Id" to BuildConfig.APPLICATION_ID,
+                            "Device Version Code" to BuildConfig.VERSION_CODE.toString(),
+                            "Device Version Name" to BuildConfig.VERSION_NAME,
+                            "Device Build Type" to BuildConfig.BUILD_TYPE,
+                            "Device" to Build.DEVICE,
+                            "Device SDK" to Build.VERSION.SDK_INT.toString(),
+                            "Device Manufacturer" to Build.MANUFACTURER,
+                        )
+                    ).build()
 
                 FileLogger.init(config)
             }

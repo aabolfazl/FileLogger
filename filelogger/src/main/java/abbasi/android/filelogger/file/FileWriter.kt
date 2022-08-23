@@ -15,7 +15,9 @@ import java.io.OutputStreamWriter
 import java.util.*
 
 internal class FileWriter(
-    private val directory: String, dataFormatterPattern: String
+    private val directory: String,
+    dataFormatterPattern: String,
+    startLogs: Map<String, String>?,
 ) {
     private var streamWriter: OutputStreamWriter? = null
     private var dateFormat: FastDateFormat? = null
@@ -39,7 +41,11 @@ internal class FileWriter(
             logFile?.createNewFile()
             val stream = FileOutputStream(logFile)
             streamWriter = OutputStreamWriter(stream).apply {
-                write("File logger initialized at ${dateFormat?.format(System.currentTimeMillis())} \n\n\n")
+                write("File logger started at ${dateFormat?.format(System.currentTimeMillis())}\n")
+                startLogs?.forEach {
+                    write("${it.key}: ${it.value} \n")
+                }
+                write("\n\n")
                 flush()
             }
         } catch (e: Exception) {
