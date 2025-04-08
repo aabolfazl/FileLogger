@@ -8,6 +8,7 @@ package abbasi.android.filelogger.file
 
 import abbasi.android.filelogger.time.FastDateFormat
 import android.util.Log
+import java.io.DataOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -17,28 +18,30 @@ internal class FileWriter(
     logFile: File,
     startLogs: Map<String, String>?,
 ) {
-    private var streamWriter: OutputStreamWriter? = null
+    private var streamWriter: DataOutputStream? = null
+    public var totalBytes:ULong = 0u;
 
     init {
         try {
             val stream = FileOutputStream(logFile)
-            streamWriter = OutputStreamWriter(stream).apply {
-                write("File logger started at ${dateFormat.format(System.currentTimeMillis())}\n")
-                startLogs?.forEach {
-                    write("${it.key}: ${it.value}\n")
-                }
-                write("\n\n")
-                flush()
+            streamWriter = DataOutputStream(stream)
+            var message = "File logger started at ${dateFormat.format(System.currentTimeMillis())}\n"
+            startLogs?.forEach {
+                message += "${it.key}: ${it.value}\n"
             }
+            message += "\n\n"
+            writeNoTag(message)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun write(message: String) {
+    fun writeNoTag(message: String) {
         streamWriter?.let { writer ->
             try {
-                writer.write("${dateFormat.format(System.currentTimeMillis())} $message")
+                val bytes = message.toByteArray(Charsets.UTF_8)
+                totalBytes += bytes.count().toUInt()
+                writer.write(bytes)
                 writer.flush()
             } catch (e: Exception) {
                 Log.e(javaClass.simpleName, "e:", e)
@@ -46,10 +49,16 @@ internal class FileWriter(
         }
     }
 
+    fun write(message: String) {
+        val formattedMessage = "${dateFormat.format(System.currentTimeMillis())} $message"
+        writeNoTag(formattedMessage)
+    }
+
     fun close() {
         try {
             streamWriter?.close()
             streamWriter = null
+            totalBytes = 0u
         } catch (e: Exception) {
             e.printStackTrace()
         }

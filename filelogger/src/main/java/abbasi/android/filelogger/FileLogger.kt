@@ -8,6 +8,7 @@ package abbasi.android.filelogger
 
 import abbasi.android.filelogger.config.Config
 import abbasi.android.filelogger.config.FileRotationStrategy
+import abbasi.android.filelogger.config.RetentionPolicy
 import abbasi.android.filelogger.file.FileWriter
 import abbasi.android.filelogger.file.LogFileManager
 import abbasi.android.filelogger.file.LogLevel
@@ -143,20 +144,32 @@ object FileLogger {
 
     private fun openedFileWriter(): FileWriter {
         val strategy = config?.fileRotationStrategy
-
-        if (strategy == null || strategy !is FileRotationStrategy.TimeBased) {
-            return fileWriter
+        when (strategy) {
+            null -> {
+            }
+            is FileRotationStrategy.None -> {
+            }
+            is FileRotationStrategy.TimeBased -> {
+                if (System.currentTimeMillis() - logFileManager.lastCreationTime > strategy.intervalInMillis) {
+                    fileWriter.close()
+                    fileWriter = FileWriter(
+                        dateFormat = dateFormat,
+                        logFile = logFileManager.currentLogFile(),
+                        startLogs = config?.startupData,
+                    )
+                }
+            }
+            is FileRotationStrategy.SizeBased -> {
+                if (fileWriter.totalBytes > strategy.bytes) {
+                    fileWriter.close()
+                    fileWriter = FileWriter(
+                        dateFormat = dateFormat,
+                        logFile = logFileManager.currentLogFile(),
+                        startLogs = config?.startupData,
+                    )
+                }
+            }
         }
-
-        if (System.currentTimeMillis() - logFileManager.lastCreationTime > strategy.intervalInMillis) {
-            fileWriter.close()
-            fileWriter = FileWriter(
-                dateFormat = dateFormat,
-                logFile = logFileManager.currentLogFile(),
-                startLogs = config?.startupData,
-            )
-        }
-
         return fileWriter
     }
 
