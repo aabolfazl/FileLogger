@@ -10,7 +10,7 @@ class AppLogInterceptor : LogInterceptor {
         message: String,
         e: Throwable?
     ): String {
-        return if (level is LogLevel.Info) {
+        return if (level == LogLevel.Info) {
             message
         } else {
             "****************************"

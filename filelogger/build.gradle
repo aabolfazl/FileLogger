@@ -1,17 +1,13 @@
 plugins {
-    id 'com.android.library'
-    id 'kotlin-android'
+    alias(libs.plugins.android.library)
 }
 
 android {
-    compileSdk 31
+    namespace 'abbasi.android.filelogger'
+    compileSdk 36
 
     defaultConfig {
-        minSdk 16
-        targetSdk 31
-        versionCode 2
-        versionName "1.0.2"
-
+        minSdk 26
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -22,15 +18,43 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+kotlin {
+    explicitApi = ExplicitApiMode.Strict
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        freeCompilerArgs.add('-Xjvm-default=all')
+    }
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation libs.androidx.core.ktx
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.androidx.startup.runtime
+    implementation libs.androidx.lifecycle.process
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.robolectric
+    testImplementation libs.okhttp.mockwebserver
+    testImplementation libs.androidx.test.core
+    androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.test.espresso.core
 }
